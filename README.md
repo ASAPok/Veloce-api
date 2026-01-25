@@ -144,8 +144,6 @@ async def robust_operation():
 
 ## 📖 Documentation
 
-- [Installation Guide](INSTALL.md)
-- [Publishing to PyPI](PUBLISHING.md)
 - [Changelog](CHANGELOG.md)
 
 ## 💻 Development
