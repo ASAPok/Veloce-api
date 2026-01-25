@@ -146,7 +146,6 @@ async def надежная_операция():
 - [Руководство по установке](INSTALL.md)
 - [Публикация на PyPI](PUBLISHING.md)
 - [История изменений](CHANGELOG.md)
-- [Полная документация API](https://veloce-api.readthedocs.io)
 
 ## 💻 Разработка
 
@@ -185,7 +184,6 @@ black veloce
 ## 🔗 Ссылки
 
 - **PyPI**: https://pypi.org/project/veloce-api/
-- **Документация**: https://veloce-api.readthedocs.io
 - **Исходный код**: https://github.com/yourusername/veloce-api
 - **Баг-трекер**: https://github.com/yourusername/veloce-api/issues
 - **Veloce Panel**: https://github.com/yourusername/veloce

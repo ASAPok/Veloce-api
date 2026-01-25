@@ -147,7 +147,6 @@ async def robust_operation():
 - [Installation Guide](INSTALL.md)
 - [Publishing to PyPI](PUBLISHING.md)
 - [Changelog](CHANGELOG.md)
-- [Full API Documentation](https://veloce-api.readthedocs.io)
 
 ## 💻 Development
 
@@ -186,7 +185,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🔗 Links
 
 - **PyPI**: https://pypi.org/project/veloce-api/
-- **Documentation**: https://veloce-api.readthedocs.io
 - **Source Code**: https://github.com/yourusername/veloce-api
 - **Issue Tracker**: https://github.com/yourusername/veloce-api/issues
 - **Veloce Panel**: https://github.com/yourusername/veloce

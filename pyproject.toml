@@ -41,7 +41,6 @@ dev = [
 
 [project.urls]
 Homepage = "https://github.com/yourusername/veloce-api"
-Documentation = "https://veloce-api.readthedocs.io"
 Repository = "https://github.com/yourusername/veloce-api"
 Issues = "https://github.com/yourusername/veloce-api/issues"
 
