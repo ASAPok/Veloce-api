@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="veloce-api",
-    version="1.0.0",
+    version="1.0.1",
     author="ASAPok",
     description="Python client library for Veloce VPN Panel API",
     long_description=long_description,
