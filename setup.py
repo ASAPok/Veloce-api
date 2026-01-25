@@ -6,11 +6,11 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="veloce-api",
     version="1.0.0",
-    author="Veloce Team",
+    author="ASAPok",
     description="Python client library for Veloce VPN Panel API",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/veloce-api",
+    url="https://github.com/ASAPok/veloce-api",
     packages=find_packages(include=['veloce', 'veloce.*']),
     classifiers=[
         "Development Status :: 4 - Beta",

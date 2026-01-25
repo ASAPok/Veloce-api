@@ -7,7 +7,7 @@
 
 **English** | **[Русский](README_RU.md)**
 
-Official Python client library for [Veloce VPN Panel](https://github.com/yourusername/veloce) management API.
+Official Python client library for [Veloce VPN Panel](https://github.com/ASAPok/veloce) management API.
 
 ## ✨ Features
 
@@ -100,8 +100,8 @@ Admin operations:
 token = await client.admin.login("username", "password")
 
 # Management
-await client.admin.create("newadmin", "password", is_sudo=True)
-await client.admin.delete("oldadmin")
+await client.admin.create("newadmin", "password", is_sudo=True)  # Requires Sudo
+await client.admin.delete("oldadmin")  # Requires Sudo
 ```
 
 ### And More!
@@ -152,7 +152,7 @@ async def robust_operation():
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/veloce-api.git
+git clone https://github.com/ASAPok/veloce-api.git
 cd veloce-api
 
 # Install in development mode
@@ -185,12 +185,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🔗 Links
 
 - **PyPI**: https://pypi.org/project/veloce-api/
-- **Source Code**: https://github.com/yourusername/veloce-api
-- **Issue Tracker**: https://github.com/yourusername/veloce-api/issues
-- **Veloce Panel**: https://github.com/yourusername/veloce
+- **Source Code**: https://github.com/ASAPok/veloce-api
+- **Issue Tracker**: https://github.com/ASAPok/veloce-api/issues
+- **Veloce Panel**: https://github.com/ASAPok/veloce
 
 ## 🌟 Support
 
 If you find this project useful, please give it a ⭐️!
 
-For questions and support, please [open an issue](https://github.com/yourusername/veloce-api/issues).
+For questions and support, please [open an issue](https://github.com/ASAPok/veloce-api/issues).

@@ -17,7 +17,7 @@
 Проверь что всё корректно:
 
 ```bash
-cd G:\app-coding\Veloce\veloce-api
+cd G:\app-coding\Veloce\veloce-api\Veloce-api
 
 # Проверь версию в pyproject.toml
 cat pyproject.toml | findstr version
@@ -196,6 +196,9 @@ pip install veloce-api==1.0.0
    - Reddit (r/Python)
    - Twitter
 
-4. **Документация:**
-   - Опубликуй на ReadTheDocs
-   - Добавь примеры использования
+## 🔗 Ссылки
+
+- **PyPI**: https://pypi.org/project/veloce-api/
+- **Source Code**: https://github.com/ASAPok/veloce-api
+- **Issue Tracker**: https://github.com/ASAPok/veloce-api/issues
+- **Veloce Panel**: https://github.com/ASAPok/veloce

@@ -2,11 +2,11 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/veloce-api.svg)](https://pypi.org/project/veloce-api/)
 [![Python versions](https://img.shields.io/pypi/pyversions/veloce-api.svg)](https://pypi.org/project/veloce-api/)
-[![License](https://img.shields.io/pypi/l/veloce-api.svg)](https://github.com/yourusername/veloce-api/blob/main/LICENSE)
+[![License](https://img.shields.io/pypi/l/veloce-api.svg)](https://pypi.org/project/veloce-api/)
 
 **[English](README.md)** | **Русский**
 
-Официальная Python библиотека для работы с API [панели управления Veloce VPN](https://github.com/yourusername/veloce).
+Официальная Python библиотека для работы с API [панели управления Veloce VPN](https://github.com/ASAPok/veloce).
 
 ## ✨ Возможности
 
@@ -99,8 +99,8 @@ await client.nodes.reconnect(node_id)
 token = await client.admin.login("username", "password")
 
 # Управление
-await client.admin.create("newadmin", "password", is_sudo=True)
-await client.admin.delete("oldadmin")
+await client.admin.create("newadmin", "password", is_sudo=True)  # Требует Sudo
+await client.admin.delete("oldadmin")  # Требует Sudo
 ```
 
 ### И Больше!
@@ -151,7 +151,7 @@ async def надежная_операция():
 
 ```bash
 # Клонировать репозиторий
-git clone https://github.com/yourusername/veloce-api.git
+git clone https://github.com/ASAPok/veloce-api.git
 cd veloce-api
 
 # Установить в режиме разработки
@@ -184,12 +184,12 @@ black veloce
 ## 🔗 Ссылки
 
 - **PyPI**: https://pypi.org/project/veloce-api/
-- **Исходный код**: https://github.com/yourusername/veloce-api
-- **Баг-трекер**: https://github.com/yourusername/veloce-api/issues
-- **Veloce Panel**: https://github.com/yourusername/veloce
+- **Исходный код**: https://github.com/ASAPok/veloce-api
+- **Баг-трекер**: https://github.com/ASAPok/veloce-api/issues
+- **Veloce Panel**: https://github.com/ASAPok/veloce
 
 ## 🌟 Поддержка
 
 Если проект вам полезен, поставьте ⭐️!
 
-По вопросам и поддержке, пожалуйста, [создайте issue](https://github.com/yourusername/veloce-api/issues).
+По вопросам и поддержке, пожалуйста, [создайте issue](https://github.com/ASAPok/veloce-api/issues).
