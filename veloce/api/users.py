@@ -72,7 +72,7 @@ class UsersAPI:
             "username": str(username),
             "proxies": {"vless": {"flow": ""}},
             "inbounds": {},
-            "expire": 0,
+            "expire": 1,
             "data_limit": 0,
             "status": "active"
         }
@@ -84,7 +84,8 @@ class UsersAPI:
         except:
             pass
         
-        # Maybe already exists
+        # Already exists -> Force update to Free Tier settings
+        await self.update(username, expire=1, data_limit=0, status="active")
         return await self.get_subscription_url(username)
     
     async def create_paid(self, username: str, days: int) -> Optional[str]:
@@ -145,10 +146,19 @@ class UsersAPI:
             return await self.create_paid(username, days)
         
         current_expire = user.get("expire", 0)
-        if current_expire and current_expire > 0:
-            new_expire = current_expire + (days * 86400)
-        else:
+        now_ts = int(datetime.now().timestamp())
+        
+        # Logic:
+        # 1. Free Tier (expire == 1) -> Start from NOW
+        # 2. Expired (expire < now) -> Start from NOW (don't extend in the past)
+        # 3. Active (expire >= now) -> Extend from current expire
+        
+        if current_expire == 1 or current_expire < now_ts:
+            # Start new paid subscription from now
             new_expire = int((datetime.now() + timedelta(days=days)).timestamp())
+        else:
+            # User has ACTIVE paid subscription -> extend it
+            new_expire = current_expire + (days * 86400)
         
         payload = {"expire": new_expire, "status": "active"}
         status, _ = await self.client._request("PUT", f"/user/{username}", payload)

@@ -4,7 +4,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/veloce-api.svg)](https://pypi.org/project/veloce-api/)
 [![License](https://img.shields.io/pypi/l/veloce-api.svg)](https://pypi.org/project/veloce-api/)
 
-**[English](README_EN.md)** | **Русский**
+**[English](https://github.com/ASAPok/veloce-api/blob/main/README_EN.md)** | **Русский**
 
 Официальная Python библиотека для работы с API [панели управления Veloce VPN](https://github.com/ASAPok/veloce).
 
