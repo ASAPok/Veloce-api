@@ -68,9 +68,21 @@ class UsersAPI:
         Returns:
             Subscription URL or None
         """
+        # First check if user exists
+        existing = await self.get(username)
+        
+        if existing:
+            # User exists -> update to Free Tier settings
+            try:
+                await self.update(username, expire=1, data_limit=0, status="active")
+            except:
+                pass
+            return await self.get_subscription_url(username)
+        
+        # User doesn't exist -> create new
         payload = {
             "username": str(username),
-            "proxies": {"vless": {"flow": ""}},
+            "proxies": {"vless": {}},
             "inbounds": {},
             "expire": 1,
             "data_limit": 0,
@@ -84,9 +96,7 @@ class UsersAPI:
         except:
             pass
         
-        # Already exists -> Force update to Free Tier settings
-        await self.update(username, expire=1, data_limit=0, status="active")
-        return await self.get_subscription_url(username)
+        return None
     
     async def create_paid(self, username: str, days: int) -> Optional[str]:
         """
@@ -103,7 +113,7 @@ class UsersAPI:
         
         payload = {
             "username": str(username),
-            "proxies": {"vless": {"flow": ""}},
+            "proxies": {"vless": {}},
             "inbounds": {},
             "expire": expire,
             "data_limit": 0,

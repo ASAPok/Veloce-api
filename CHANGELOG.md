@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.4] - 2026-01-31
+
+### Fixed
+- Reverted `proxies` payload to use empty dict `{"vless": {}}` instead of passing empty string flow
+- `flow=""` may cause validation errors if backend expects Enum value or no field
+
+## [1.1.3] - 2026-01-31
+
+### Fixed
+- `create_free()` now properly checks if user exists before deciding to create or update
+- Previously it blindly tried update after failed create, causing 404 errors
+
 ## [1.1.2] - 2026-01-31
 
 ### Fixed
