@@ -10,10 +10,13 @@ from .exceptions import (
     VeloceAPIError,
     VeloceAuthError,
     VeloceNotFoundError,
-    VeloceValidationError
+    VeloceValidationError,
+    VeloceConflictError,
+    VeloceServerError
 )
+from .utils import setup_logging
 
-__version__ = "1.0.0"
+__version__ = "1.2.0"
 __author__ = "Veloce Team"
 __license__ = "MIT"
 
@@ -23,4 +26,7 @@ __all__ = [
     "VeloceAuthError",
     "VeloceNotFoundError",
     "VeloceValidationError",
+    "VeloceConflictError",
+    "VeloceServerError",
+    "setup_logging",
 ]

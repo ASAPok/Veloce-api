@@ -3,6 +3,8 @@ Main Veloce API Client
 """
 
 import aiohttp
+import asyncio
+import logging
 from typing import Dict, Any, Optional, Tuple
 
 from .exceptions import (
@@ -15,27 +17,49 @@ from .exceptions import (
 )
 
 
+logger = logging.getLogger(__name__)
+
+
 class VeloceClient:
     """
     Main client for Veloce Panel API
-    
-    Usage:
+
+    Usage with context manager (recommended):
+        >>> async with VeloceClient("https://panel.com/api", "api_key") as client:
+        ...     await client.users.create_free("user123")
+        ...     await client.nodes.list()
+
+    Or manual session management:
         >>> client = VeloceClient("https://panel.com/api", "api_key")
         >>> await client.users.create_free("user123")
-        >>> await client.nodes.list()
+        >>> await client.close()
     """
-    
-    def __init__(self, base_url: str, api_key: str):
+
+    def __init__(
+        self,
+        base_url: str,
+        api_key: str,
+        timeout: int = 30,
+        max_retries: int = 3
+    ):
         """
         Initialize Veloce API client
-        
+
         Args:
             base_url: Base URL of panel (e.g. https://panel.com/api)
             api_key: API key for authentication
+            timeout: Request timeout in seconds (default: 30)
+            max_retries: Maximum number of retry attempts (default: 3)
         """
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
-        
+        self.timeout = aiohttp.ClientTimeout(total=timeout)
+        self.max_retries = max_retries
+
+        # Session management
+        self._session: Optional[aiohttp.ClientSession] = None
+        self._owns_session = True
+
         # Lazy load API modules
         self._users_api = None
         self._admin_api = None
@@ -44,6 +68,28 @@ class VeloceClient:
         self._system_api = None
         self._api_keys_api = None
         self._core_api = None
+
+    async def __aenter__(self):
+        """Context manager entry"""
+        await self._ensure_session()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit"""
+        await self.close()
+
+    async def _ensure_session(self) -> aiohttp.ClientSession:
+        """Ensure aiohttp session exists"""
+        if self._session is None or self._session.closed:
+            self._session = aiohttp.ClientSession(timeout=self.timeout)
+            self._owns_session = True
+        return self._session
+
+    async def close(self):
+        """Close aiohttp session"""
+        if self._session and not self._session.closed and self._owns_session:
+            await self._session.close()
+            self._session = None
     
     @property
     def users(self):
@@ -113,28 +159,36 @@ class VeloceClient:
         method: str,
         endpoint: str,
         json_data: Optional[Dict[str, Any]] = None,
-        params: Optional[Dict[str, Any]] = None
+        params: Optional[Dict[str, Any]] = None,
+        retry: bool = True
     ) -> Tuple[int, Dict[str, Any]]:
         """
-        Make HTTP request to API
-        
+        Make HTTP request to API with automatic retry logic
+
         Args:
             method: HTTP method
             endpoint: API endpoint
             json_data: JSON body
             params: Query parameters
-            
+            retry: Enable retry logic for transient errors
+
         Returns:
             Tuple of (status_code, response_data)
-            
+
         Raises:
             VeloceAPIError: On API errors
         """
         url = f"{self.base_url}{endpoint}"
         headers = self._get_headers()
-        
-        try:
-            async with aiohttp.ClientSession() as session:
+        session = await self._ensure_session()
+
+        last_exception = None
+        retries = self.max_retries if retry else 1
+
+        for attempt in range(retries):
+            try:
+                logger.debug(f"[Attempt {attempt + 1}/{retries}] {method} {endpoint}")
+
                 async with session.request(
                     method,
                     url,
@@ -144,9 +198,14 @@ class VeloceClient:
                 ) as resp:
                     try:
                         response_data = await resp.json()
-                    except:
+                    except aiohttp.ContentTypeError:
                         response_data = {}
-                    
+                    except Exception as e:
+                        logger.warning(f"Failed to parse JSON response: {e}")
+                        response_data = {}
+
+                    logger.debug(f"Response {resp.status} from {endpoint}")
+
                     # Handle errors
                     if resp.status == 401:
                         raise VeloceAuthError(
@@ -179,32 +238,64 @@ class VeloceClient:
                             response=response_data
                         )
                     elif resp.status >= 500:
-                        raise VeloceServerError(
+                        # Server errors are retryable
+                        error = VeloceServerError(
                             "Server error",
                             status_code=resp.status,
                             response=response_data
                         )
-                    
+                        if attempt < retries - 1:
+                            last_exception = error
+                            delay = min(2 ** attempt, 60)
+                            logger.warning(f"Server error, retrying in {delay}s...")
+                            await asyncio.sleep(delay)
+                            continue
+                        raise error
+
                     return resp.status, response_data
-        
-        except (VeloceAuthError, VeloceNotFoundError, VeloceConflictError,
-                VeloceValidationError, VeloceServerError):
-            raise
-        except Exception as e:
-            raise VeloceAPIError(f"Request failed: {e}")
+
+            except (VeloceAuthError, VeloceNotFoundError, VeloceConflictError,
+                    VeloceValidationError):
+                # These errors are not retryable
+                raise
+            except VeloceServerError:
+                # Already handled above
+                raise
+            except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+                # Network errors are retryable
+                last_exception = e
+                if attempt < retries - 1:
+                    delay = min(2 ** attempt, 60)
+                    logger.warning(f"Network error, retrying in {delay}s: {e}")
+                    await asyncio.sleep(delay)
+                    continue
+                logger.error(f"HTTP client error after {retries} attempts: {e}")
+                raise VeloceAPIError(f"HTTP request failed: {e}")
+            except Exception as e:
+                logger.error(f"Unexpected error: {e}")
+                raise VeloceAPIError(f"Request failed: {e}")
+
+        # Should not reach here, but just in case
+        if last_exception:
+            raise VeloceAPIError(f"Request failed after {retries} attempts: {last_exception}")
+        raise VeloceAPIError(f"Request failed after {retries} attempts")
     
     async def health_check(self) -> bool:
         """
         Check if API is accessible
-        
+
         Returns:
-            True if healthy
+            True if healthy, False otherwise
         """
         try:
             await self._request("GET", "/admin")
             return True
         except VeloceAuthError:
-            # Auth error means API is working
+            # Auth error means API is working but credentials are wrong
             return True
-        except:
+        except VeloceAPIError as e:
+            logger.warning(f"Health check failed: {e}")
+            return False
+        except Exception as e:
+            logger.error(f"Unexpected error during health check: {e}")
             return False

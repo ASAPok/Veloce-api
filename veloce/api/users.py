@@ -2,30 +2,39 @@
 Users API - User management endpoints
 """
 
+import logging
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List
+
+from ..exceptions import VeloceNotFoundError, VeloceAPIError
+
+
+logger = logging.getLogger(__name__)
 
 
 class UsersAPI:
     """User management operations"""
-    
+
     def __init__(self, client):
         self.client = client
-    
+
     async def get(self, username: str) -> Optional[Dict[str, Any]]:
         """
         Get user by username
-        
+
         Args:
             username: Username to fetch
-            
+
         Returns:
             User data or None if not found
         """
         try:
             status, data = await self.client._request("GET", f"/user/{username}")
             return data if status == 200 else None
-        except:
+        except VeloceNotFoundError:
+            return None
+        except VeloceAPIError as e:
+            logger.error(f"Failed to get user {username}: {e}")
             return None
     
     async def list(
@@ -61,24 +70,24 @@ class UsersAPI:
     async def create_free(self, username: str) -> Optional[str]:
         """
         Create free tier user
-        
+
         Args:
             username: Username to create
-            
+
         Returns:
             Subscription URL or None
         """
         # First check if user exists
         existing = await self.get(username)
-        
+
         if existing:
             # User exists -> update to Free Tier settings
             try:
                 await self.update(username, expire=1, data_limit=0, status="active")
-            except:
-                pass
+            except VeloceAPIError as e:
+                logger.warning(f"Failed to update existing user {username} to free tier: {e}")
             return await self.get_subscription_url(username)
-        
+
         # User doesn't exist -> create new
         payload = {
             "username": str(username),
@@ -88,14 +97,14 @@ class UsersAPI:
             "data_limit": 0,
             "status": "active"
         }
-        
+
         try:
             status, resp = await self.client._request("POST", "/user", payload)
             if status in (200, 201):
                 return await self.get_subscription_url(username)
-        except:
-            pass
-        
+        except VeloceAPIError as e:
+            logger.error(f"Failed to create free user {username}: {e}")
+
         return None
     
     async def create_paid(self, username: str, days: int) -> Optional[str]:
